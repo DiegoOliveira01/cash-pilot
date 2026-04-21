@@ -22,6 +22,16 @@ public class TransactionController {
         return transactionService.create(dto);
     }
 
+    @PutMapping("/{id}")
+    public TransactionResponseDTO update(@PathVariable Long id, @RequestBody @Valid TransactionRequestDTO dto){
+        return transactionService.update(id, dto);
+    }
+
+    @GetMapping("/{id}")
+    public TransactionResponseDTO getById(@PathVariable Long id){
+        return transactionService.findById(id);
+    }
+
     @GetMapping
     public List<TransactionResponseDTO> getAll(){
         return transactionService.findAllByUser();
@@ -30,5 +40,10 @@ public class TransactionController {
     @GetMapping("/summary")
     public TransactionSummaryDTO getSummary(){
         return transactionService.getSummary();
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id){
+        transactionService.delete(id);
     }
 }

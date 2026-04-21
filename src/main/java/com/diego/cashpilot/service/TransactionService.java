@@ -22,10 +22,7 @@ public class TransactionService {
 
     public TransactionResponseDTO create(TransactionRequestDTO dto){
 
-        User user = (User) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
+        User user = getLoggedUser();
 
         Transaction transaction = Transaction.builder()
                 .description(dto.getDescription())
@@ -40,16 +37,40 @@ public class TransactionService {
         return mapToResponse(transaction);
     }
 
+    public TransactionResponseDTO update(Long id, TransactionRequestDTO dto){
+        User user = getLoggedUser();
+
+        Transaction transaction = transactionRepository.findByIdAndUser(id, user)
+                .orElseThrow(() -> new RuntimeException("Transação não encontrada"));
+
+        transaction.setDescription(dto.getDescription());
+        transaction.setAmount(dto.getAmount());
+        transaction.setType(dto.getType());
+        transaction.setDate(dto.getDate());
+
+        transaction = transactionRepository.save(transaction);
+
+        return mapToResponse(transaction);
+    }
+
+
     public List<TransactionResponseDTO> findAllByUser(){
-        User user = (User) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
+        User user = getLoggedUser();
 
         return transactionRepository.findByUser(user)
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
+    }
+
+    public TransactionResponseDTO findById(Long id){
+        User user = getLoggedUser();
+
+        Transaction transaction = transactionRepository
+                .findByIdAndUser(id, user)
+                .orElseThrow(() -> new RuntimeException("Transação não encontrada"));
+
+        return mapToResponse(transaction);
     }
 
     private TransactionResponseDTO mapToResponse(Transaction transaction){
@@ -63,10 +84,7 @@ public class TransactionService {
     }
 
     public TransactionSummaryDTO getSummary(){
-        User user = (User) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
+        User user = getLoggedUser();
 
         List<Transaction> transactions = transactionRepository.findByUser(user);
 
@@ -90,6 +108,23 @@ public class TransactionService {
                 .balance(balance)
                 .build();
 
+    }
+
+    public void delete(Long id){
+        User user = getLoggedUser();
+
+        Transaction transaction = transactionRepository
+                .findByIdAndUser(id, user)
+                .orElseThrow(() -> new RuntimeException("Transação não encontrada"));
+
+        transactionRepository.delete(transaction);
+    }
+
+    private User getLoggedUser() {
+        return (User) SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getPrincipal();
     }
 
 }
