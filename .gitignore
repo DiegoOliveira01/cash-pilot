@@ -34,6 +34,7 @@ build/
 
 # Credenciais do banco
 src/main/resources/application.properties
+src/main/resources/application-dev.properties
 
 # Logs
 *.log
