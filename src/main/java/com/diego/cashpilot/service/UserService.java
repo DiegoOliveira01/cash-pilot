@@ -6,6 +6,7 @@ import com.diego.cashpilot.model.User;
 import com.diego.cashpilot.model.enums.Role;
 import com.diego.cashpilot.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,9 @@ public class UserService {
 
     public UserResponseDTO save (UserRequestDTO dto){
         if (userRepository.existsByEmail(dto.getEmail())){
-            throw new RuntimeException("Email já cadastrado");
+            throw new org.springframework.web.server.ResponseStatusException(
+                    HttpStatus.CONFLICT, "Email já cadastrado"
+            );
         }
 
         User user = new User();
